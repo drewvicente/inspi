@@ -140,7 +140,10 @@ var root=document.documentElement;
 document.getElementById('theme').onclick=function(){
   var dark=root.dataset.theme==='dark';
   var next=dark?'light':'dark';
-  function apply(){root.dataset.theme=next}
+  function apply(){
+    root.dataset.theme=next;
+    try{localStorage.setItem('theme',next)}catch(e){}
+  }
   if(!document.startViewTransition||matchMedia('(prefers-reduced-motion: reduce)').matches){apply();return}
   var r=this.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
   var rad=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));

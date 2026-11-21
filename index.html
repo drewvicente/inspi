@@ -4,6 +4,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || savedTheme === 'light') document.documentElement.dataset.theme = savedTheme;
+    } catch (e) {}
+  </script>
   <title>drew.design</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,14 +49,14 @@
 
     <div class="stats">
       <div class="stat"><b data-n="4" data-s="th">4th</b><span>year BSIT</span></div>
-      <div class="stat"><b data-n="1" data-s="+">5+</b><span>projects built</span></div>
-      <div class="stat"><b data-n="0" data-s=""></b><span>hackathons joined</span></div>
+      <div class="stat"><b data-n="1" data-s="">1+</b><span>projects built</span></div>
+      <div class="stat"><b data-n="0" data-s=""> </b><span>hackathons joined</span></div>
     </div>
 
     <!-- Projects -->
     <section id="projects">
       <div class="head">
-        <h2>01 — projects</h2><a href="projects.html">all projects →</a>
+        <h2>01 — projects</h2><a href="projects.html">ALL PROJECTS →</a>
       </div>
       <div class="card">
         <div class="badge">Capstone Project</div>
@@ -74,7 +80,7 @@
     <!-- Experience -->
     <section id="experience">
       <div class="head">
-        <h2>02 — experience</h2><a href="exp.html">full history →</a>
+        <h2>02 — experience</h2><a href="exp.html">FULL HISTORY →</a>
       </div>
       <div class="row">
         <div class="y">2026</div>
@@ -85,7 +91,7 @@
     <!-- Skill -->
     <section id="stack">
       <div class="head">
-        <h2>03 — stack</h2><a href="stack.html">view all →</a>
+        <h2>03 — stack</h2><a href="stack.html">VIEW ALL →</a>
       </div>
       <div class="chips">
         <span>HTML</span><span>CSS</span><span>JavaScript</span><span>TypeScript</span><span>Angular</span><span>Ionic</span><span>MySQL</span>

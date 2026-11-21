@@ -262,7 +262,7 @@ h2 {
   font-size: 14px;
   font-weight: 300;
   color: var(--mut);
-  text-transform: lowercase;
+  text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
