@@ -1,5 +1,6 @@
 (function(){
   var g=document.getElementById('gh'),username='drewvicente';
+  if(!g)return;
 
   function renderGrid(levels,total){
     g.innerHTML='';
@@ -163,8 +164,61 @@ document.querySelectorAll('#certs .card').forEach(function(card){
     }
   });
 });
-document.getElementById('copy').onclick=function(){
-  var b=this;
-  try{navigator.clipboard.writeText('vicentecharlesandrew002@gmail.com')}catch(e){}
-  b.textContent='Copied!';setTimeout(function(){b.textContent='Copy'},1500);
-};
+var copyBtn=document.getElementById('copy');
+if(copyBtn){
+  copyBtn.onclick=function(){
+    var b=this;
+    try{navigator.clipboard.writeText('vicentecharlesandrew002@gmail.com')}catch(e){}
+    b.textContent='Copied!';setTimeout(function(){b.textContent='Copy'},1500);
+  };
+}
+
+// Pagination logic for projects page
+(function(){
+  var pageBtns = document.querySelectorAll('.page-btn[data-page]');
+  var nextBtn = document.querySelector('.page-btn.next-btn');
+  var cards = document.querySelectorAll('.project-card[data-page]');
+  if (!pageBtns.length || !cards.length) return;
+
+  var totalPages = 0;
+  cards.forEach(function(c){
+    var p = parseInt(c.dataset.page, 10);
+    if (p > totalPages) totalPages = p;
+  });
+
+  function goToPage(page){
+    cards.forEach(function(c){
+      if (parseInt(c.dataset.page, 10) === page) {
+        c.style.display = 'flex';
+        c.classList.remove('in');
+        setTimeout(function(){ c.classList.add('in'); }, 10);
+      } else {
+        c.style.display = 'none';
+      }
+    });
+
+    pageBtns.forEach(function(b){
+      b.classList.toggle('active', parseInt(b.dataset.page, 10) === page);
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  pageBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var targetPage = parseInt(this.dataset.page, 10);
+      if (targetPage) goToPage(targetPage);
+    });
+  });
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function(){
+      var active = document.querySelector('.page-btn[data-page].active');
+      var curr = active ? parseInt(active.dataset.page, 10) : 1;
+      var next = curr < totalPages ? curr + 1 : 1;
+      goToPage(next);
+    });
+  }
+
+  goToPage(1);
+})();
