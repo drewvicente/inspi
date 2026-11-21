@@ -79,7 +79,7 @@ var root=document.documentElement;
   },{passive:true});
 })();
 document.getElementById('theme').onclick=function(){
-  var dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  var dark=root.dataset.theme?root.dataset.theme==='dark':true;
   var next=dark?'light':'dark';
   function apply(){root.dataset.theme=next}
   if(!document.startViewTransition||matchMedia('(prefers-reduced-motion: reduce)').matches){apply();return}
