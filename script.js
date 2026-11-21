@@ -9,49 +9,108 @@
       c.style.transitionDelay=(Math.floor(i/7)*12)+'ms';
       g.appendChild(c);
     }
-    document.getElementById('ghn').textContent=(total||0).toLocaleString();
+    document.getElementById('ghn').textContent=typeof total==='number'?total.toLocaleString():total;
   }
 
-  // Fallback: seeded random grid
-  function fakeGrid(){
-    var s=7,levels=[],tot=0;
-    function r(){s=(s*9301+49297)%233280;return s/233280}
-    for(var w=0;w<53;w++)for(var d=0;d<7;d++){
-      var v=r(),l=v<.35?0:v<.6?1:v<.78?2:v<.92?3:4;
-      if((d===0||d===6)&&r()<.5)l=0;
-      if(l)tot+=Math.ceil(r()*l*4);
-      levels.push(l);
-    }
-    renderGrid(levels,tot);
-  }
+  // Render "drew" spelled across the 7x53 contribution grid
+  function showDrewGrid(){
+    var cols = [];
+    // 15 empty columns on the left
+    for(var i=0; i<15; i++) cols.push([0,0,0,0,0,0,0]);
 
-  // Fetch real contributions via public CORS-friendly API
-  fetch('https://github-contributions-api.jogruber.de/v4/'+username+'?y=last')
-    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
-    .then(function(data){
-      var contribs=data.contributions||[];
-      var total=data.total&&data.total.lastYear||0;
-      // contribs is a flat array of {date,count,level} sorted by date
-      // GitHub grid is 7 rows (Sun-Sat) × 53 cols (weeks), column-major
-      // The API returns day-by-day in chronological order — already column-major friendly
-      // We need exactly 371 cells (53×7); pad the start if needed
-      var startDay=new Date(contribs[0].date).getDay(); // 0=Sun
-      var levels=[];
-      // Pad leading days of the first week
-      for(var p=0;p<startDay;p++)levels.push(0);
-      for(var i=0;i<contribs.length;i++){
-        var lv=contribs[i].level||0;
-        // API returns level 0-4, map directly
-        levels.push(lv>4?4:lv);
+    // 'd' (4 cols)
+    cols.push([0,0,0,1,1,1,0]);
+    cols.push([0,0,1,0,0,0,1]);
+    cols.push([0,0,1,0,0,0,1]);
+    cols.push([1,1,1,1,1,1,1]);
+
+    // gap (2 cols)
+    cols.push([0,0,0,0,0,0,0],[0,0,0,0,0,0,0]);
+
+    // 'r' (4 cols)
+    cols.push([0,0,1,1,1,1,1]);
+    cols.push([0,0,0,1,0,0,0]);
+    cols.push([0,0,1,0,0,0,0]);
+    cols.push([0,0,1,0,0,0,0]);
+
+    // gap (2 cols)
+    cols.push([0,0,0,0,0,0,0],[0,0,0,0,0,0,0]);
+
+    // 'e' (4 cols)
+    cols.push([0,0,0,1,1,1,0]);
+    cols.push([0,0,1,0,1,0,1]);
+    cols.push([0,0,1,0,1,0,1]);
+    cols.push([0,0,0,1,1,0,1]);
+
+    // gap (2 cols)
+    cols.push([0,0,0,0,0,0,0],[0,0,0,0,0,0,0]);
+
+    // 'w' (5 cols)
+    cols.push([0,0,1,1,1,1,0]);
+    cols.push([0,0,0,0,0,0,1]);
+    cols.push([0,0,0,0,1,1,0]);
+    cols.push([0,0,0,0,0,0,1]);
+    cols.push([0,0,1,1,1,1,0]);
+
+    // 15 empty columns on the right
+    while(cols.length < 53) cols.push([0,0,0,0,0,0,0]);
+
+    // Flatten column-major into levels array
+    var levels = [];
+    for(var c=0; c<cols.length; c++){
+      for(var r=0; r<7; r++){
+        levels.push(cols[c][r] ? 4 : 0);
       }
-      // Pad trailing to fill last week
-      while(levels.length%7!==0)levels.push(0);
-      renderGrid(levels,total);
-    })
-    .catch(function(){fakeGrid()});
+    }
+    renderGrid(levels, 'drew');
+  }
 
-  // Show fallback immediately, replaced when fetch resolves
-  fakeGrid();
+  // Fetch real data in parallel
+  var fetchData = fetch('https://github-contributions-api.jogruber.de/v4/'+username+'?y=last')
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+    .catch(function(){return null});
+
+  // Ensure "drew" is visible for at least 2.5s after the user actually scrolls to the graph
+  var graphCard = document.querySelector('.graph');
+  var seenPromise = new Promise(function(resolve){
+    if(!('IntersectionObserver' in window)){
+      setTimeout(resolve, 2500);
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting){
+        io.disconnect();
+        setTimeout(resolve, 2500);
+      }
+    }, {threshold: 0.2});
+    io.observe(graphCard);
+  });
+
+  // Once data is ready AND user has seen "drew" for 2.5s, smoothly transition to live contributions
+  Promise.all([fetchData, seenPromise]).then(function(results){
+    var data = results[0];
+    if(!data) return;
+    var contribs=data.contributions||[];
+    var total=data.total&&data.total.lastYear||0;
+    var startDay=new Date(contribs[0].date).getDay();
+    var levels=[];
+    for(var p=0;p<startDay;p++)levels.push(0);
+    for(var i=0;i<contribs.length;i++){
+      var lv=contribs[i].level||0;
+      levels.push(lv>4?4:lv);
+    }
+    while(levels.length%7!==0)levels.push(0);
+
+    g.style.transition = 'opacity .35s ease';
+    g.style.opacity = '0.2';
+    setTimeout(function(){
+      renderGrid(levels, total);
+      g.style.opacity = '1';
+    }, 350);
+  });
+
+  // Show "drew" pixel grid immediately
+  showDrewGrid();
 })();
 var root=document.documentElement;
 (function(){
@@ -79,7 +138,7 @@ var root=document.documentElement;
   },{passive:true});
 })();
 document.getElementById('theme').onclick=function(){
-  var dark=root.dataset.theme?root.dataset.theme==='dark':true;
+  var dark=root.dataset.theme==='dark';
   var next=dark?'light':'dark';
   function apply(){root.dataset.theme=next}
   if(!document.startViewTransition||matchMedia('(prefers-reduced-motion: reduce)').matches){apply();return}
