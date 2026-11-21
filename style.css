@@ -70,6 +70,8 @@ button{font-family:inherit;font-weight:300}
 button:hover{border-color:color-mix(in srgb,var(--fg) 25%,var(--line))}
 .card p a{text-decoration:none}
 .card p a:hover{color:var(--fg)}
+#certs .card{cursor:pointer}
+#certs .card:hover p a{color:var(--fg)}
 .graph{overflow-x:auto}
 .gh-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,9px);grid-auto-columns:9px;gap:3px;width:max-content}
 .gh-grid i{border-radius:2px;background:var(--line)}

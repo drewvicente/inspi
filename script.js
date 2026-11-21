@@ -152,6 +152,14 @@ document.getElementById('theme').onclick=function(){
     );
   });
 };
+document.querySelectorAll('#certs .card').forEach(function(card){
+  card.addEventListener('click', function(e){
+    var link = card.querySelector('a');
+    if(link && e.target !== link){
+      link.click();
+    }
+  });
+});
 document.getElementById('copy').onclick=function(){
   var b=this;
   try{navigator.clipboard.writeText('vicentecharlesandrew002@gmail.com')}catch(e){}
